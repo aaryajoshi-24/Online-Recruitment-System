@@ -1,0 +1,29 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend for Online Recruitment System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "recruitment",
+    "job-portal",
+    "express",
+    "mysql"
+  ],
+  "author": "Online Recruitment System Team",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
