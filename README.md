@@ -1,3 +1,31 @@
+<<<<<<< HEAD
+# Online Recruitment System - Applicant Module
+
+A full-stack job application platform built with React, Node.js, Express, and MySQL.
+
+---
+
+## 1. Prerequisites
+- **Node.js** (v16+)
+- **MySQL** and **phpMyAdmin** (e.g. XAMPP or standalone MySQL server)
+
+---
+
+## 2. Database Setup (phpMyAdmin)
+1. Open phpMyAdmin (`http://localhost/phpmyadmin`).
+2. Click on the **SQL** tab.
+3. Open `database/database.sql` from this project, copy its full content, paste it into the phpMyAdmin SQL editor, and click **Go**.
+4. This creates the `online_recruitment` database along with tables (`categories`, `applicants`, `jobs`, `applications`) and 5 initial active job listings.
+
+---
+
+## 3. Server Configuration & Setup
+1. Open a terminal in the root directory.
+2. Navigate to server:
+   ```bash
+   cd server
+   npm install
+=======
 # Online Recruitment System
 
 A full-stack web application designed to simplify the recruitment process. The system provides separate interfaces for applicants and administrators, allowing applicants to search and apply for jobs while administrators manage job posts, applications, and applicant records.
@@ -212,3 +240,4 @@ The Applicant Module and Admin Module will have different layouts and functional
 ## 🤝 Collaboration
 
 This project is developed collaboratively using Git and GitHub. Each team member will work on their assigned module and the completed modules will be integrated into the `main` branch for the final application.
+>>>>>>> 4acab69737be15b97b4fff8ddebc292ea0c0cb93
