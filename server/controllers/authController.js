@@ -25,7 +25,7 @@ const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const userRole = role === "admin" ? "admin" : "applicant";
+    const userRole = "admin";
 
     const [result] = await db.execute(
       `INSERT INTO users (name, email, password, role)
