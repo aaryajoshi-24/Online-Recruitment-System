@@ -1,36 +1,109 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
 
-const jobRoutes = require('./routes/jobRoutes');
-const applicationRoutes = require('./routes/applicationRoutes');
-const applicantRoutes = require('./routes/applicantRoutes');
+require("./config/db");
 
-dotenv.config();
+const authRoutes = require("./routes/authRoutes");
+const jobRoutes = require("./routes/jobRoutes");
+const applicationRoutes = require("./routes/applicationRoutes");
+const applicantRoutes = require("./routes/applicantRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Enable CORS for Vite Client
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
-}));
+
+/* ================= MIDDLEWARE ================= */
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
 
 app.use(express.json());
 
-// API Routes
-app.use('/api/jobs', jobRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/applicants', applicantRoutes);
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
 
-// Root route
-app.get('/', (req, res) => {
-  res.json({ success: true, message: 'Online Recruitment System API server is running.' });
+
+/* ================= HEALTH CHECK ================= */
+
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Online Recruitment System API is running"
+  });
 });
 
-// Start Server
+
+/* ================= API ROUTES ================= */
+
+app.use(
+  "/api/auth",
+  authRoutes
+);
+
+app.use(
+  "/api/jobs",
+  jobRoutes
+);
+
+app.use(
+  "/api/applications",
+  applicationRoutes
+);
+
+app.use(
+  "/api/applicants",
+  applicantRoutes
+);
+
+app.use(
+  "/api/categories",
+  categoryRoutes
+);
+
+app.use(
+  "/api/admin",
+  adminRoutes
+);
+
+
+/* ================= 404 HANDLER ================= */
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: "Route not found"
+  });
+});
+
+
+/* ================= ERROR HANDLER ================= */
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  res.status(err.status || 500).json({
+    message:
+      err.message ||
+      "Internal server error"
+  });
+});
+
+
+/* ================= START SERVER ================= */
+
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(
+    `Server running on http://localhost:${PORT}`
+  );
 });

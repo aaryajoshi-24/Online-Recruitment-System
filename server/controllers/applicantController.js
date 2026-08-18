@@ -1,48 +1,201 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
-exports.getApplicantProfile = async (req, res) => {
+/* =====================================================
+   ADMIN - GET ALL APPLICANTS
+===================================================== */
+
+const getApplicants = async (req, res) => {
   try {
-    const { id } = req.params;
-    const [rows] = await db.execute('SELECT id, name, email, phone, resume_url, created_at FROM applicants WHERE id = ?', [id]);
+    const [applicants] = await db.execute(`
+      SELECT
+        id,
+        name,
+        email,
+        created_at
+      FROM users
+      WHERE role = 'applicant'
+      ORDER BY created_at DESC
+    `);
 
-    if (rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Applicant profile not found.' });
-    }
-
-    return res.status(200).json({ success: true, data: rows[0] });
+    res.json(applicants);
   } catch (error) {
-    console.error('Error getting applicant profile:', error);
-    return res.status(500).json({ success: false, message: 'Server error retrieving profile.' });
+    console.error("Error getting applicants:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch applicants"
+    });
   }
 };
 
-exports.updateApplicantProfile = async (req, res) => {
+
+/* =====================================================
+   ADMIN - GET APPLICANT BY ID
+===================================================== */
+
+const getApplicantById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, resume_url } = req.body;
 
-    if (!name || !email || !phone || !resume_url) {
-      return res.status(400).json({ success: false, message: 'Please provide all profile details.' });
+    const [applicants] = await db.execute(
+      `
+      SELECT
+        id,
+        name,
+        email,
+        created_at
+      FROM users
+      WHERE id = ? AND role = 'applicant'
+      `,
+      [id]
+    );
+
+    if (applicants.length === 0) {
+      return res.status(404).json({
+        message: "Applicant not found"
+      });
     }
 
-    const query = `
-      UPDATE applicants 
-      SET name = ?, email = ?, phone = ?, resume_url = ? 
-      WHERE id = ?
-    `;
-    const [result] = await db.execute(query, [name, email, phone, resume_url, id]);
+    res.json(applicants[0]);
+  } catch (error) {
+    console.error("Error getting applicant:", error);
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Applicant profile not found.' });
+    res.status(500).json({
+      message: "Failed to fetch applicant"
+    });
+  }
+};
+
+
+/* =====================================================
+   APPLICANT - GET PROFILE
+===================================================== */
+
+const getApplicantProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await db.execute(
+      `
+      SELECT
+        id,
+        name,
+        email,
+        phone,
+        resume_url,
+        created_at
+      FROM applicants
+      WHERE id = ?
+      `,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Applicant profile not found."
+      });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Profile updated successfully!',
-      data: { id, name, email, phone, resume_url }
+      data: rows[0]
     });
   } catch (error) {
-    console.error('Error updating applicant profile:', error);
-    return res.status(500).json({ success: false, message: 'Server error updating profile.' });
+    console.error(
+      "Error getting applicant profile:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error retrieving profile."
+    });
   }
+};
+
+
+/* =====================================================
+   APPLICANT - UPDATE PROFILE
+===================================================== */
+
+const updateApplicantProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      name,
+      email,
+      phone,
+      resume_url
+    } = req.body;
+
+    if (!name || !email || !phone || !resume_url) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all profile details."
+      });
+    }
+
+    const query = `
+      UPDATE applicants
+      SET
+        name = ?,
+        email = ?,
+        phone = ?,
+        resume_url = ?
+      WHERE id = ?
+    `;
+
+    const [result] = await db.execute(
+      query,
+      [
+        name,
+        email,
+        phone,
+        resume_url,
+        id
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Applicant profile not found."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully!",
+      data: {
+        id,
+        name,
+        email,
+        phone,
+        resume_url
+      }
+    });
+  } catch (error) {
+    console.error(
+      "Error updating applicant profile:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error updating profile."
+    });
+  }
+};
+
+
+/* =====================================================
+   EXPORTS
+===================================================== */
+
+module.exports = {
+  getApplicants,
+  getApplicantById,
+  getApplicantProfile,
+  updateApplicantProfile
 };
