@@ -21,8 +21,7 @@ const getJobs = async (req, res) => {
         c.name AS category,
         j.deadline,
         j.created_at,
-        j.updated_at,
-        j.status
+        j.updated_at
       FROM jobs j
       LEFT JOIN categories c
         ON j.category_id = c.id
@@ -63,7 +62,7 @@ const getAllJobs = async (req, res) => {
       FROM jobs j
       LEFT JOIN categories c
         ON j.category_id = c.id
-      WHERE j.status = 'Active'
+      WHERE 1 = 1
     `;
 
     const params = [];

@@ -19,7 +19,7 @@ function JobPosts() {
 
       const response = await api.get("/jobs");
 
-      setJobs(response.data);
+      setJobs(response.data.data || []);
       setError("");
     } catch (error) {
       console.error("Jobs error:", error);
