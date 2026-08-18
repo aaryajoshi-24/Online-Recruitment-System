@@ -2,7 +2,9 @@ const express = require("express");
 
 const {
   getApplicants,
-  getApplicantById
+  getApplicantById,
+  getApplicantProfile,
+  updateApplicantProfile
 } = require("../controllers/applicantController");
 
 const {
@@ -12,6 +14,12 @@ const {
 
 const router = express.Router();
 
+
+/* =====================================================
+   ADMIN APPLICANT MANAGEMENT
+===================================================== */
+
+// Get all applicants
 router.get(
   "/",
   authenticateToken,
@@ -19,11 +27,32 @@ router.get(
   getApplicants
 );
 
+
+// Get applicant details by ID
 router.get(
   "/:id",
   authenticateToken,
   requireAdmin,
   getApplicantById
 );
+
+
+/* =====================================================
+   APPLICANT PROFILE
+===================================================== */
+
+// Get applicant profile
+router.get(
+  "/profile/:id",
+  getApplicantProfile
+);
+
+
+// Update applicant profile
+router.put(
+  "/profile/:id",
+  updateApplicantProfile
+);
+
 
 module.exports = router;

@@ -1,5 +1,10 @@
 const db = require("../config/db");
 
+
+/* =====================================================
+   ADMIN - GET ALL JOBS
+===================================================== */
+
 const getJobs = async (req, res) => {
   try {
     const [jobs] = await db.execute(`
@@ -16,21 +21,123 @@ const getJobs = async (req, res) => {
         c.name AS category,
         j.deadline,
         j.created_at,
-        j.updated_at
+        j.updated_at,
+        j.status
       FROM jobs j
-      LEFT JOIN categories c ON j.category_id = c.id
+      LEFT JOIN categories c
+        ON j.category_id = c.id
       ORDER BY j.created_at DESC
     `);
 
     res.json(jobs);
+
   } catch (error) {
-    console.error(error);
+    console.error("Get jobs error:", error);
 
     res.status(500).json({
       message: "Failed to fetch jobs"
     });
   }
 };
+
+
+/* =====================================================
+   APPLICANT - GET JOBS
+   Supports search, category, location and type filters
+===================================================== */
+
+const getAllJobs = async (req, res) => {
+  try {
+    const {
+      search,
+      category,
+      location,
+      type
+    } = req.query;
+
+    let query = `
+      SELECT
+        j.*,
+        j.job_type AS type,
+        c.name AS category_name
+      FROM jobs j
+      LEFT JOIN categories c
+        ON j.category_id = c.id
+      WHERE j.status = 'Active'
+    `;
+
+    const params = [];
+
+    if (search) {
+      query += `
+        AND (
+          j.title LIKE ?
+          OR j.company LIKE ?
+        )
+      `;
+
+      params.push(
+        `%${search}%`,
+        `%${search}%`
+      );
+    }
+
+    if (category) {
+      query += `
+        AND c.name = ?
+      `;
+
+      params.push(category);
+    }
+
+    if (location) {
+      query += `
+        AND j.location LIKE ?
+      `;
+
+      params.push(`%${location}%`);
+    }
+
+    if (type) {
+      query += `
+        AND j.job_type = ?
+      `;
+
+      params.push(type);
+    }
+
+    query += `
+      ORDER BY j.created_at DESC
+    `;
+
+    const [rows] = await db.execute(
+      query,
+      params
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: rows
+    });
+
+  } catch (error) {
+    console.error(
+      "Error getting jobs:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error retrieving jobs."
+    });
+  }
+};
+
+
+/* =====================================================
+   GET JOB BY ID
+   Used by both Admin and Applicant
+===================================================== */
 
 const getJobById = async (req, res) => {
   try {
@@ -40,9 +147,12 @@ const getJobById = async (req, res) => {
       `
       SELECT
         j.*,
-        c.name AS category
+        j.job_type AS type,
+        c.name AS category,
+        c.name AS category_name
       FROM jobs j
-      LEFT JOIN categories c ON j.category_id = c.id
+      LEFT JOIN categories c
+        ON j.category_id = c.id
       WHERE j.id = ?
       `,
       [id]
@@ -55,14 +165,23 @@ const getJobById = async (req, res) => {
     }
 
     res.json(jobs[0]);
+
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Get job error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to fetch job"
     });
   }
 };
+
+
+/* =====================================================
+   ADMIN - CREATE JOB
+===================================================== */
 
 const createJob = async (req, res) => {
   try {
@@ -78,7 +197,13 @@ const createJob = async (req, res) => {
       deadline
     } = req.body;
 
-    if (!title || !company || !location || !job_type || !description) {
+    if (
+      !title ||
+      !company ||
+      !location ||
+      !job_type ||
+      !description
+    ) {
       return res.status(400).json({
         message: "Required job fields are missing"
       });
@@ -117,14 +242,23 @@ const createJob = async (req, res) => {
       message: "Job created successfully",
       jobId: result.insertId
     });
+
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Create job error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to create job"
     });
   }
 };
+
+
+/* =====================================================
+   ADMIN - UPDATE JOB
+===================================================== */
 
 const updateJob = async (req, res) => {
   try {
@@ -180,14 +314,23 @@ const updateJob = async (req, res) => {
     res.json({
       message: "Job updated successfully"
     });
+
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Update job error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to update job"
     });
   }
 };
+
+
+/* =====================================================
+   ADMIN - DELETE JOB
+===================================================== */
 
 const deleteJob = async (req, res) => {
   try {
@@ -207,8 +350,12 @@ const deleteJob = async (req, res) => {
     res.json({
       message: "Job deleted successfully"
     });
+
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Delete job error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to delete job"
@@ -216,8 +363,14 @@ const deleteJob = async (req, res) => {
   }
 };
 
+
+/* =====================================================
+   EXPORTS
+===================================================== */
+
 module.exports = {
   getJobs,
+  getAllJobs,
   getJobById,
   createJob,
   updateJob,

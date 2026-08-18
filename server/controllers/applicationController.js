@@ -1,17 +1,17 @@
 const db = require("../config/db");
 
+
+/* =====================================================
+   ADMIN - GET ALL APPLICATIONS
+===================================================== */
+
 const getApplications = async (req, res) => {
   try {
     const [applications] = await db.execute(`
       SELECT
-        a.id,
-        a.job_id,
-        a.applicant_id,
-        a.cover_letter,
-        a.resume,
-        a.status,
-        a.applied_at,
+        a.*,
         j.title AS job_title,
+        j.company,
         u.name AS applicant_name,
         u.email AS applicant_email
       FROM applications a
@@ -30,6 +30,11 @@ const getApplications = async (req, res) => {
   }
 };
 
+
+/* =====================================================
+   ADMIN - GET APPLICATION BY ID
+===================================================== */
+
 const getApplicationById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -40,6 +45,8 @@ const getApplicationById = async (req, res) => {
         a.*,
         j.title AS job_title,
         j.company,
+        j.location,
+        j.salary,
         u.name AS applicant_name,
         u.email AS applicant_email
       FROM applications a
@@ -66,78 +73,221 @@ const getApplicationById = async (req, res) => {
   }
 };
 
-const createApplication = async (req, res) => {
+
+/* =====================================================
+   APPLICANT - SUBMIT APPLICATION
+===================================================== */
+
+const submitApplication = async (req, res) => {
   try {
     const {
-      job_id,
       applicant_id,
-      cover_letter,
-      resume
+      job_id,
+      full_name,
+      email,
+      phone,
+      resume_url,
+      cover_letter
     } = req.body;
 
-    if (!job_id || !applicant_id) {
+    if (
+      !applicant_id ||
+      !job_id ||
+      !full_name ||
+      !email ||
+      !phone ||
+      !resume_url
+    ) {
       return res.status(400).json({
-        message: "Job and applicant are required"
+        success: false,
+        message: "Please fill in all required application fields."
       });
     }
 
-    const [job] = await db.execute(
-      "SELECT id FROM jobs WHERE id = ?",
+    // Check whether the job exists and is active
+    const [jobCheck] = await db.execute(
+      `
+      SELECT id, title
+      FROM jobs
+      WHERE id = ?
+      AND status = "Active"
+      `,
       [job_id]
     );
 
-    if (job.length === 0) {
+    if (jobCheck.length === 0) {
       return res.status(404).json({
-        message: "Job not found"
+        success: false,
+        message:
+          "The job you are applying for does not exist or is closed."
       });
     }
 
+    // Prevent duplicate application
     const [existing] = await db.execute(
       `
       SELECT id
       FROM applications
-      WHERE job_id = ? AND applicant_id = ?
+      WHERE applicant_id = ?
+      AND job_id = ?
       `,
-      [job_id, applicant_id]
+      [applicant_id, job_id]
     );
 
     if (existing.length > 0) {
       return res.status(409).json({
-        message: "You have already applied for this job"
+        success: false,
+        message: "You have already applied for this job."
       });
     }
 
-    const [result] = await db.execute(
-      `
+    const query = `
       INSERT INTO applications
       (
-        job_id,
         applicant_id,
+        job_id,
+        full_name,
+        email,
+        phone,
+        resume_url,
         cover_letter,
-        resume
+        status
       )
-      VALUES (?, ?, ?, ?)
-      `,
-      [
-        job_id,
-        applicant_id,
-        cover_letter || null,
-        resume || null
-      ]
-    );
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
+    `;
 
-    res.status(201).json({
-      message: "Application submitted successfully",
-      applicationId: result.insertId
+    const [result] = await db.execute(query, [
+      applicant_id,
+      job_id,
+      full_name,
+      email,
+      phone,
+      resume_url,
+      cover_letter || ""
+    ]);
+
+    return res.status(201).json({
+      success: true,
+      message: "Application submitted successfully!",
+      data: {
+        application_id: result.insertId,
+        job_title: jobCheck[0].title,
+        applicant_name: full_name
+      }
     });
-  } catch (error) {
-    console.error("Create application error:", error);
 
-    res.status(500).json({
-      message: "Failed to submit application"
+  } catch (error) {
+    console.error("Error submitting application:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while submitting application."
     });
   }
 };
+
+
+/* =====================================================
+   APPLICANT - GET MY APPLICATIONS
+===================================================== */
+
+const getApplicationsByApplicant = async (req, res) => {
+  try {
+    const { applicantId } = req.params;
+
+    const query = `
+      SELECT
+        a.*,
+        j.title AS job_title,
+        j.company,
+        j.location,
+        j.salary,
+        j.type AS job_type
+      FROM applications a
+      JOIN jobs j ON a.job_id = j.id
+      WHERE a.applicant_id = ?
+      ORDER BY a.applied_at DESC
+    `;
+
+    const [rows] = await db.execute(
+      query,
+      [applicantId]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: rows
+    });
+
+  } catch (error) {
+    console.error(
+      "Error fetching applicant applications:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error retrieving applications."
+    });
+  }
+};
+
+
+/* =====================================================
+   APPLICANT - GET APPLICATION DETAILS
+===================================================== */
+
+const getApplicantApplicationById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = `
+      SELECT
+        a.*,
+        j.title AS job_title,
+        j.company,
+        j.location,
+        j.salary,
+        j.type AS job_type
+      FROM applications a
+      JOIN jobs j ON a.job_id = j.id
+      WHERE a.id = ?
+    `;
+
+    const [rows] = await db.execute(
+      query,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Application details not found."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: rows[0]
+    });
+
+  } catch (error) {
+    console.error(
+      "Error getting application details:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error fetching application details."
+    });
+  }
+};
+
+
+/* =====================================================
+   ADMIN - UPDATE APPLICATION STATUS
+===================================================== */
 
 const updateApplicationStatus = async (req, res) => {
   try {
@@ -175,8 +325,12 @@ const updateApplicationStatus = async (req, res) => {
     res.json({
       message: "Application status updated successfully"
     });
+
   } catch (error) {
-    console.error("Update application status error:", error);
+    console.error(
+      "Update application status error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to update application status"
@@ -184,9 +338,16 @@ const updateApplicationStatus = async (req, res) => {
   }
 };
 
+
+/* =====================================================
+   EXPORTS
+===================================================== */
+
 module.exports = {
   getApplications,
   getApplicationById,
-  createApplication,
+  submitApplication,
+  getApplicationsByApplicant,
+  getApplicantApplicationById,
   updateApplicationStatus
 };

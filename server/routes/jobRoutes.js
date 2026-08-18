@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   getJobs,
+  getAllJobs,
   getJobById,
   createJob,
   updateJob,
@@ -15,12 +16,25 @@ const {
 
 const router = express.Router();
 
-// Applicant + Admin
-router.get("/", getJobs);
 
-router.get("/:id", getJobById);
+/* ================= APPLICANT + ADMIN ================= */
 
-// Admin only
+// Get jobs
+router.get(
+  "/",
+  getAllJobs
+);
+
+// Get job details
+router.get(
+  "/:id",
+  getJobById
+);
+
+
+/* ================= ADMIN ONLY ================= */
+
+// Create job
 router.post(
   "/",
   authenticateToken,
@@ -28,6 +42,7 @@ router.post(
   createJob
 );
 
+// Update job
 router.put(
   "/:id",
   authenticateToken,
@@ -35,11 +50,13 @@ router.put(
   updateJob
 );
 
+// Delete job
 router.delete(
   "/:id",
   authenticateToken,
   requireAdmin,
   deleteJob
 );
+
 
 module.exports = router;

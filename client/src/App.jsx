@@ -1,9 +1,9 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-// Admin Layout
+// ================= ADMIN =================
+
 import AdminLayout from "./components/admin/AdminLayout";
 
-// Admin Pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
@@ -19,28 +19,29 @@ import ApplicationDetails from "./pages/admin/ApplicationDetails";
 import Applicants from "./pages/admin/Applicants";
 import ApplicantDetails from "./pages/admin/ApplicantDetails";
 
-// Applicant Pages
+// ================= APPLICANT =================
+
 import ApplicantRegister from "./pages/applicant/ApplicantRegister";
+
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+
+import Home from "./pages/Home";
+import Jobs from "./pages/Jobs";
+import JobDetails from "./pages/JobDetails";
+import ApplyJob from "./pages/ApplyJob";
+import ApplicationSuccess from "./pages/ApplicationSuccess";
+import MyApplications from "./pages/MyApplications";
+import Profile from "./pages/Profile";
 
 
 function App() {
   return (
     <Routes>
 
-      {/* ================= DEFAULT ================= */}
-
-      <Route
-        path="/"
-        element={
-          <Navigate
-            to="/admin/login"
-            replace
-          />
-        }
-      />
-
-
-      {/* ================= ADMIN LOGIN ================= */}
+      {/* =====================================================
+          ADMIN LOGIN
+      ===================================================== */}
 
       <Route
         path="/admin/login"
@@ -48,7 +49,9 @@ function App() {
       />
 
 
-      {/* ================= ADMIN MODULE ================= */}
+      {/* =====================================================
+          ADMIN MODULE
+      ===================================================== */}
 
       <Route
         path="/admin"
@@ -68,7 +71,7 @@ function App() {
         />
 
 
-        {/* ================= DASHBOARD ================= */}
+        {/* Dashboard */}
 
         <Route
           path="dashboard"
@@ -76,7 +79,7 @@ function App() {
         />
 
 
-        {/* ================= JOB POSTS ================= */}
+        {/* Job Posts */}
 
         <Route
           path="jobs"
@@ -94,7 +97,7 @@ function App() {
         />
 
 
-        {/* ================= CATEGORIES ================= */}
+        {/* Categories */}
 
         <Route
           path="categories"
@@ -102,7 +105,7 @@ function App() {
         />
 
 
-        {/* ================= APPLICATIONS ================= */}
+        {/* Applications */}
 
         <Route
           path="applications"
@@ -115,14 +118,12 @@ function App() {
         />
 
 
-        {/* ================= APPLICANTS ================= */}
+        {/* Applicants */}
 
         <Route
           path="applicants"
           element={<Applicants />}
         />
-
-        {/* Applicant Details */}
 
         <Route
           path="applicants/:id"
@@ -132,7 +133,9 @@ function App() {
       </Route>
 
 
-      {/* ================= APPLICANT REGISTRATION ================= */}
+      {/* =====================================================
+          APPLICANT REGISTRATION
+      ===================================================== */}
 
       <Route
         path="/applicant/register"
@@ -140,22 +143,124 @@ function App() {
       />
 
 
-      {/* ================= TEMPORARY APPLICANT MODULE ================= */}
+      {/* =====================================================
+          APPLICANT MODULE
+      ===================================================== */}
 
       <Route
         path="/applicant"
         element={
-          <div className="container text-center mt-5">
+          <div className="app-layout">
 
-            <h1>
-              Applicant Module
-            </h1>
+            {/* Applicant Sidebar */}
 
-            <p>
-              Applicant module will be integrated here.
-            </p>
+            <Navbar />
+
+            {/* Applicant Main Area */}
+
+            <div className="main-area">
+
+              {/* Applicant Header */}
+
+              <header className="top-header">
+
+                <div className="top-header-title">
+                  Applicant Portal
+                </div>
+
+                <div className="top-header-user">
+
+                  <div className="user-avatar">
+                    AS
+                  </div>
+
+                  <div className="user-info">
+
+                    <div className="user-name">
+                      Aarav Sharma
+                    </div>
+
+                    <div className="user-role">
+                      Applicant
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </header>
+
+
+              {/* Applicant Pages */}
+
+              <main className="content-wrapper">
+
+                <Routes>
+
+                  <Route
+                    index
+                    element={<Home />}
+                  />
+
+                  <Route
+                    path="jobs"
+                    element={<Jobs />}
+                  />
+
+                  <Route
+                    path="jobs/:id"
+                    element={<JobDetails />}
+                  />
+
+                  <Route
+                    path="apply/:jobId"
+                    element={<ApplyJob />}
+                  />
+
+                  <Route
+                    path="application-success"
+                    element={<ApplicationSuccess />}
+                  />
+
+                  <Route
+                    path="my-applications"
+                    element={<MyApplications />}
+                  />
+
+                  <Route
+                    path="applications/:id"
+                    element={<ApplicationDetails />}
+                  />
+
+                  <Route
+                    path="profile"
+                    element={<Profile />}
+                  />
+
+                </Routes>
+
+              </main>
+
+              <Footer />
+
+            </div>
 
           </div>
+        }
+      />
+
+
+      {/* =====================================================
+          DEFAULT
+      ===================================================== */}
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/admin/login"
+            replace
+          />
         }
       />
 

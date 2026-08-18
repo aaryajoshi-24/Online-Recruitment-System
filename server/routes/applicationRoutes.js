@@ -3,7 +3,9 @@ const express = require("express");
 const {
   getApplications,
   getApplicationById,
-  createApplication,
+  submitApplication,
+  getApplicationsByApplicant,
+  getApplicantApplicationById,
   updateApplicationStatus
 } = require("../controllers/applicationController");
 
@@ -14,7 +16,10 @@ const {
 
 const router = express.Router();
 
-// Admin
+
+/* ================= ADMIN ================= */
+
+// Get all applications
 router.get(
   "/",
   authenticateToken,
@@ -22,6 +27,8 @@ router.get(
   getApplications
 );
 
+
+// Get application details
 router.get(
   "/:id",
   authenticateToken,
@@ -29,19 +36,38 @@ router.get(
   getApplicationById
 );
 
-// Applicant
-router.post(
-  "/",
-  authenticateToken,
-  createApplication
-);
 
-// Admin
+// Update application status
 router.put(
   "/:id/status",
   authenticateToken,
   requireAdmin,
   updateApplicationStatus
 );
+
+
+/* ================= APPLICANT ================= */
+
+// Submit application
+router.post(
+  "/",
+  authenticateToken,
+  submitApplication
+);
+
+
+// Get applications of an applicant
+router.get(
+  "/applicant/:applicantId",
+  getApplicationsByApplicant
+);
+
+
+// Get applicant-side application details
+router.get(
+  "/details/:id",
+  getApplicantApplicationById
+);
+
 
 module.exports = router;

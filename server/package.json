@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "recruitment-system-server",
   "version": "1.0.0",
-  "description": "Backend for Online Recruitment System",
+  "description": "Backend API for Online Recruitment System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
