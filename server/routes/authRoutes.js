@@ -2,13 +2,41 @@ const express = require("express");
 
 const {
   register,
+  registerAdmin,
   login
 } = require("../controllers/authController");
 
 const router = express.Router();
 
-router.post("/register", register);
 
-router.post("/login", login);
+/* =====================================================
+   APPLICANT REGISTER
+===================================================== */
+
+router.post(
+  "/register",
+  register
+);
+
+
+/* =====================================================
+   ADMIN REGISTER
+===================================================== */
+
+router.post(
+  "/admin-register",
+  registerAdmin
+);
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+router.post(
+  "/login",
+  login
+);
+
 
 module.exports = router;

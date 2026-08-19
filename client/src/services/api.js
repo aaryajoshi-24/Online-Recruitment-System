@@ -42,8 +42,9 @@ export const submitApplication = (data) =>
 export const getApplicationsByApplicant = (applicantId) =>
   api.get(`/applications/applicant/${applicantId}`);
 
+// Applicant-side application details
 export const getApplicationById = (id) =>
-  api.get(`/applications/${id}`);
+  api.get(`/applications/details/${id}`);
 
 // Applicant Profile
 export const getApplicantProfile = (id) =>

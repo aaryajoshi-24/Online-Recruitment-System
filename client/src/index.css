@@ -1027,3 +1027,538 @@ button {
   }
 }
 
+/* =========================================================
+   APPLICANT MODULE
+   IMPORTANT: ALL STYLES BELOW ARE SCOPED TO .app-layout
+   ADMIN MODULE WILL NOT BE AFFECTED
+========================================================= */
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f6f7fb;
+  color: #18233a;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================================================
+   APPLICANT SIDEBAR
+========================================================= */
+
+.app-layout .sidebar {
+  width: 270px;
+  min-width: 270px;
+  min-height: 100vh;
+  background: #202440;
+  color: white;
+  padding: 25px 18px;
+  box-sizing: border-box;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.app-layout .sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 10px 30px;
+}
+
+.app-layout .sidebar-brand-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 14px;
+  background: #6c63ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.app-layout .sidebar-brand-text {
+  display: block;
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.app-layout .sidebar-brand-sub {
+  display: block;
+  color: #aeb5d1;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Remove bullets */
+.app-layout .sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.app-layout .sidebar-menu-item {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Applicant navigation links */
+.app-layout .sidebar-menu-item a {
+  width: 100%;
+  min-height: 50px;
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  padding: 14px 16px;
+  box-sizing: border-box;
+
+  color: #c9cee1;
+  background: transparent;
+
+  border-radius: 11px;
+
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+
+  transition: all 0.2s ease;
+}
+
+.app-layout .sidebar-menu-item a span {
+  width: 24px;
+  min-width: 24px;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* Hover */
+.app-layout .sidebar-menu-item a:hover {
+  background: rgba(108, 99, 255, 0.18);
+  color: white;
+}
+
+/* Active */
+.app-layout .sidebar-menu-item a.active {
+  background: #6c63ff;
+  color: white;
+  font-weight: 600;
+}
+
+/* =========================================================
+   APPLICANT MAIN AREA
+========================================================= */
+
+.app-layout .main-area {
+  margin-left: 270px;
+  width: calc(100% - 270px);
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   APPLICANT HEADER
+========================================================= */
+
+.app-layout .top-header {
+  height: 90px;
+  min-height: 90px;
+
+  background: white;
+  border-bottom: 1px solid #e8eaf0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 35px;
+  box-sizing: border-box;
+}
+
+.app-layout .top-header-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #18233a;
+}
+
+.app-layout .top-header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-layout .user-avatar {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 50%;
+  background: #6c63ff;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.app-layout .user-info {
+  line-height: 1.3;
+}
+
+.app-layout .user-name {
+  color: #18233a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.app-layout .user-role {
+  color: #8790a7;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* =========================================================
+   APPLICANT CONTENT
+========================================================= */
+
+.app-layout .content-wrapper {
+  flex: 1;
+
+  width: 100%;
+  max-width: 1450px;
+
+  margin: 0 auto;
+  padding: 35px;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   APPLICANT CARDS
+========================================================= */
+
+.app-layout .card {
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 18px;
+  padding: 28px;
+  box-sizing: border-box;
+
+  box-shadow: 0 3px 12px rgba(30, 35, 60, 0.04);
+}
+
+.app-layout .card-header {
+  margin-bottom: 25px;
+}
+
+.app-layout .card-header h1 {
+  margin: 0;
+  color: #18233a;
+}
+
+/* =========================================================
+   APPLICANT FORMS
+========================================================= */
+
+.app-layout .form-group {
+  margin-bottom: 22px;
+}
+
+.app-layout .form-group label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #18233a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.app-layout .form-control {
+  width: 100%;
+  height: 50px;
+
+  padding: 0 15px;
+
+  box-sizing: border-box;
+
+  background: white;
+  border: 1px solid #dfe3ec;
+  border-radius: 9px;
+
+  color: #18233a;
+  font-size: 14px;
+
+  outline: none;
+}
+
+.app-layout .form-control:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+}
+
+/* =========================================================
+   APPLICANT BUTTONS
+========================================================= */
+
+.app-layout .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 10px 18px;
+
+  border-radius: 9px;
+  border: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  text-decoration: none;
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.app-layout .btn-primary {
+  background: #6c63ff;
+  color: white;
+}
+
+.app-layout .btn-primary:hover {
+  background: #5b52ed;
+}
+
+.app-layout .btn-outline {
+  background: white;
+  color: #6c63ff;
+  border: 1px solid #dfe3ec;
+}
+
+.app-layout .btn-outline:hover {
+  background: #f6f5ff;
+  border-color: #6c63ff;
+}
+
+/* =========================================================
+   APPLICANT ALERTS
+========================================================= */
+
+.app-layout .alert {
+  padding: 14px 16px;
+  border-radius: 9px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.app-layout .alert-info {
+  background: #eaf9f0;
+  color: #16834b;
+  border: 1px solid #c9efd9;
+}
+
+.app-layout .alert-danger {
+  background: #fff0f0;
+  color: #d33a3a;
+  border: 1px solid #ffd4d4;
+}
+
+/* =========================================================
+   APPLICANT TABLE
+========================================================= */
+
+.app-layout .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+
+  background: white;
+
+  border: 1px solid #e8eaf0;
+  border-radius: 18px;
+}
+
+.app-layout .data-table {
+  width: 100%;
+  min-width: 750px;
+
+  border-collapse: collapse;
+}
+
+.app-layout .data-table th {
+  padding: 16px;
+
+  text-align: left;
+
+  background: #fafbff;
+
+  color: #18233a;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  border-bottom: 1px solid #e8eaf0;
+}
+
+.app-layout .data-table td {
+  padding: 17px 16px;
+
+  color: #4f566b;
+  font-size: 14px;
+
+  border-bottom: 1px solid #eeeeF3;
+}
+
+.app-layout .data-table tbody tr:hover {
+  background: #fafbff;
+}
+
+.app-layout .data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =========================================================
+   APPLICANT STATUS BADGES
+========================================================= */
+
+.app-layout .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 13px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.app-layout .badge-selected {
+  background: #e6f8ee;
+  color: #16834b;
+}
+
+.app-layout .badge-under-review {
+  background: #e8f1ff;
+  color: #2871d8;
+}
+
+.app-layout .badge-rejected {
+  background: #ffe9e9;
+  color: #d33a3a;
+}
+
+.app-layout .badge-pending {
+  background: #fff5d6;
+  color: #b77900;
+}
+
+/* =========================================================
+   APPLICANT FOOTER
+========================================================= */
+
+.app-layout .main-area > footer {
+  margin-top: auto;
+  padding: 20px 35px;
+
+  background: white;
+  border-top: 1px solid #e8eaf0;
+
+  color: #8790a7;
+  font-size: 13px;
+}
+
+/* =========================================================
+   APPLICANT RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .app-layout .sidebar {
+    width: 230px;
+    min-width: 230px;
+  }
+
+  .app-layout .main-area {
+    margin-left: 230px;
+    width: calc(100% - 230px);
+  }
+
+  .app-layout .content-wrapper {
+    padding: 25px;
+  }
+
+  .app-layout .top-header {
+    padding: 0 25px;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .app-layout {
+    display: block;
+  }
+
+  .app-layout .sidebar {
+    position: relative;
+
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+
+    padding: 15px;
+  }
+
+  .app-layout .sidebar-header {
+    padding-bottom: 15px;
+  }
+
+  .app-layout .sidebar-menu {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .app-layout .sidebar-menu-item {
+    flex-shrink: 0;
+  }
+
+  .app-layout .sidebar-menu-item a {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .app-layout .main-area {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .app-layout .top-header {
+    height: 75px;
+    min-height: 75px;
+    padding: 0 18px;
+  }
+
+  .app-layout .content-wrapper {
+    padding: 18px;
+  }
+
+  .app-layout .top-header-title {
+    font-size: 19px;
+  }
+}

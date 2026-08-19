@@ -18,6 +18,7 @@ const getApplicants = async (req, res) => {
     `);
 
     res.json(applicants);
+
   } catch (error) {
     console.error("Error getting applicants:", error);
 
@@ -56,6 +57,7 @@ const getApplicantById = async (req, res) => {
     }
 
     res.json(applicants[0]);
+
   } catch (error) {
     console.error("Error getting applicant:", error);
 
@@ -83,8 +85,8 @@ const getApplicantProfile = async (req, res) => {
         phone,
         resume_url,
         created_at
-      FROM applicants
-      WHERE id = ?
+      FROM users
+      WHERE id = ? AND role = 'applicant'
       `,
       [id]
     );
@@ -100,11 +102,9 @@ const getApplicantProfile = async (req, res) => {
       success: true,
       data: rows[0]
     });
+
   } catch (error) {
-    console.error(
-      "Error getting applicant profile:",
-      error
-    );
+    console.error("Error getting applicant profile:", error);
 
     return res.status(500).json({
       success: false,
@@ -136,18 +136,16 @@ const updateApplicantProfile = async (req, res) => {
       });
     }
 
-    const query = `
-      UPDATE applicants
+    const [result] = await db.execute(
+      `
+      UPDATE users
       SET
         name = ?,
         email = ?,
         phone = ?,
         resume_url = ?
-      WHERE id = ?
-    `;
-
-    const [result] = await db.execute(
-      query,
+      WHERE id = ? AND role = 'applicant'
+      `,
       [
         name,
         email,
@@ -175,11 +173,9 @@ const updateApplicantProfile = async (req, res) => {
         resume_url
       }
     });
+
   } catch (error) {
-    console.error(
-      "Error updating applicant profile:",
-      error
-    );
+    console.error("Error updating applicant profile:", error);
 
     return res.status(500).json({
       success: false,

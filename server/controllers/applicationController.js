@@ -21,6 +21,7 @@ const getApplications = async (req, res) => {
     `);
 
     res.json(applications);
+
   } catch (error) {
     console.error("Get applications error:", error);
 
@@ -47,8 +48,11 @@ const getApplicationById = async (req, res) => {
         j.company,
         j.location,
         j.salary,
+        j.job_type AS job_type,
         u.name AS applicant_name,
-        u.email AS applicant_email
+        u.email AS applicant_email,
+        u.phone AS applicant_phone,
+        u.resume_url AS applicant_resume
       FROM applications a
       JOIN jobs j ON a.job_id = j.id
       JOIN users u ON a.applicant_id = u.id
@@ -64,6 +68,7 @@ const getApplicationById = async (req, res) => {
     }
 
     res.json(applications[0]);
+
   } catch (error) {
     console.error("Get application error:", error);
 
@@ -90,6 +95,9 @@ const submitApplication = async (req, res) => {
       cover_letter
     } = req.body;
 
+
+    /* ================= VALIDATION ================= */
+
     if (
       !applicant_id ||
       !job_id ||
@@ -104,13 +112,45 @@ const submitApplication = async (req, res) => {
       });
     }
 
-    // Check whether the job exists and is active
+
+    /* ================= CHECK APPLICANT ================= */
+
+    const [applicant] = await db.execute(
+      `
+      SELECT
+        id,
+        name,
+        email,
+        phone,
+        resume_url
+      FROM users
+      WHERE id = ?
+      AND role = 'applicant'
+      `,
+      [applicant_id]
+    );
+
+    if (applicant.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Applicant not found."
+      });
+    }
+
+
+    /* ================= CHECK JOB ================= */
+
     const [jobCheck] = await db.execute(
       `
-      SELECT id, title
+      SELECT
+        id,
+        title,
+        company,
+        location,
+        job_type,
+        salary
       FROM jobs
       WHERE id = ?
-      AND status = "Active"
       `,
       [job_id]
     );
@@ -118,12 +158,13 @@ const submitApplication = async (req, res) => {
     if (jobCheck.length === 0) {
       return res.status(404).json({
         success: false,
-        message:
-          "The job you are applying for does not exist or is closed."
+        message: "The job you are applying for does not exist."
       });
     }
 
-    // Prevent duplicate application
+
+    /* ================= DUPLICATE CHECK ================= */
+
     const [existing] = await db.execute(
       `
       SELECT id
@@ -131,7 +172,10 @@ const submitApplication = async (req, res) => {
       WHERE applicant_id = ?
       AND job_id = ?
       `,
-      [applicant_id, job_id]
+      [
+        applicant_id,
+        job_id
+      ]
     );
 
     if (existing.length > 0) {
@@ -141,43 +185,74 @@ const submitApplication = async (req, res) => {
       });
     }
 
-    const query = `
-      INSERT INTO applications
-      (
-        applicant_id,
-        job_id,
+
+    /* ================= UPDATE APPLICANT PROFILE ================= */
+
+    await db.execute(
+      `
+      UPDATE users
+      SET
+        name = ?,
+        email = ?,
+        phone = ?,
+        resume_url = ?
+      WHERE id = ?
+      AND role = 'applicant'
+      `,
+      [
         full_name,
         email,
         phone,
         resume_url,
+        applicant_id
+      ]
+    );
+
+
+    /* ================= INSERT APPLICATION ================= */
+
+    const [result] = await db.execute(
+      `
+      INSERT INTO applications
+      (
+        job_id,
+        applicant_id,
         cover_letter,
+        resume,
         status
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
-    `;
+      VALUES (?, ?, ?, ?, 'Pending')
+      `,
+      [
+        job_id,
+        applicant_id,
+        cover_letter || "",
+        resume_url
+      ]
+    );
 
-    const [result] = await db.execute(query, [
-      applicant_id,
-      job_id,
-      full_name,
-      email,
-      phone,
-      resume_url,
-      cover_letter || ""
-    ]);
+
+    /* ================= SUCCESS RESPONSE ================= */
 
     return res.status(201).json({
       success: true,
       message: "Application submitted successfully!",
       data: {
         application_id: result.insertId,
+        job_id: job_id,
         job_title: jobCheck[0].title,
-        applicant_name: full_name
+        company: jobCheck[0].company,
+        applicant_id: applicant_id,
+        applicant_name: full_name,
+        status: "Pending"
       }
     });
 
   } catch (error) {
-    console.error("Error submitting application:", error);
+    console.error(
+      "Error submitting application:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -202,7 +277,7 @@ const getApplicationsByApplicant = async (req, res) => {
         j.company,
         j.location,
         j.salary,
-        j.type AS job_type
+        j.job_type AS job_type
       FROM applications a
       JOIN jobs j ON a.job_id = j.id
       WHERE a.applicant_id = ?
@@ -248,7 +323,7 @@ const getApplicantApplicationById = async (req, res) => {
         j.company,
         j.location,
         j.salary,
-        j.type AS job_type
+        j.job_type AS job_type
       FROM applications a
       JOIN jobs j ON a.job_id = j.id
       WHERE a.id = ?
@@ -313,7 +388,10 @@ const updateApplicationStatus = async (req, res) => {
       SET status = ?
       WHERE id = ?
       `,
-      [status, id]
+      [
+        status,
+        id
+      ]
     );
 
     if (result.affectedRows === 0) {

@@ -17,7 +17,9 @@ const {
 const router = express.Router();
 
 
-/* ================= ADMIN ================= */
+/* =====================================================
+   ADMIN
+===================================================== */
 
 // Get all applications
 router.get(
@@ -28,7 +30,7 @@ router.get(
 );
 
 
-// Get application details
+// Get application details - Admin
 router.get(
   "/:id",
   authenticateToken,
@@ -37,7 +39,7 @@ router.get(
 );
 
 
-// Update application status
+// Update application status - Admin
 router.put(
   "/:id/status",
   authenticateToken,
@@ -46,12 +48,15 @@ router.put(
 );
 
 
-/* ================= APPLICANT ================= */
+/* =====================================================
+   APPLICANT
+===================================================== */
 
 // Submit application
+// No authentication because current Applicant module
+// uses DEMO_APPLICANT_ID.
 router.post(
   "/",
-  authenticateToken,
   submitApplication
 );
 

@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
-function AdminLogin() {
+function AdminRegister() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: ""
   });
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (event) => {
@@ -24,45 +26,38 @@ function AdminLogin() {
     event.preventDefault();
 
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
-      // Clear any previous login session
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      // Login
       const response = await api.post(
-        "/auth/login",
+        "/auth/admin-register",
         formData
       );
 
-      const { token, user } = response.data;
-
-      // Make sure the account is an admin
-      if (!user || user.role !== "admin") {
-        setError(
-          "Admin access required. Please use an admin account."
-        );
-        return;
-      }
-
-      // Store admin login details
-      localStorage.setItem("token", token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify(user)
+      setSuccess(
+        response.data.message ||
+        "Admin account created successfully."
       );
 
-      // Go to Admin Dashboard
-      navigate("/admin/dashboard");
+      // Clear form
+      setFormData({
+        name: "",
+        email: "",
+        password: ""
+      });
+
+      // Go to login after a short delay
+      setTimeout(() => {
+        navigate("/admin/login");
+      }, 1500);
 
     } catch (error) {
-      console.error("Admin login error:", error);
+      console.error("Admin registration error:", error);
 
       setError(
         error.response?.data?.message ||
-        "Login failed. Please check your credentials."
+        "Admin registration failed. Please try again."
       );
 
     } finally {
@@ -75,8 +70,7 @@ function AdminLogin() {
 
       <div className="admin-login-card">
 
-        {/* ================= BRAND ================= */}
-
+        {/* Brand */}
         <div className="login-brand">
 
           <div className="login-brand-icon">
@@ -90,38 +84,79 @@ function AdminLogin() {
         </div>
 
 
-        {/* ================= HEADING ================= */}
-
+        {/* Heading */}
         <div className="login-heading">
 
-          <h3>Welcome Back!</h3>
+          <h3>Create Admin Account</h3>
 
           <p>
-            Sign in to manage your recruitment system.
+            Create an account to manage the recruitment system.
           </p>
 
         </div>
 
 
-        {/* ================= ERROR ================= */}
-
+        {/* Error */}
         {error && (
           <div className="login-error">
-
             <i className="bi bi-exclamation-circle"></i>
-
             {error}
-
           </div>
         )}
 
 
-        {/* ================= LOGIN FORM ================= */}
+        {/* Success */}
+        {success && (
+          <div
+            style={{
+              backgroundColor: "#dcfce7",
+              color: "#166534",
+              padding: "0.75rem",
+              borderRadius: "6px",
+              marginBottom: "1rem",
+              fontSize: "0.9rem"
+            }}
+          >
+            <i
+              className="bi bi-check-circle"
+              style={{ marginRight: "0.5rem" }}
+            ></i>
 
+            {success}
+          </div>
+        )}
+
+
+        {/* Registration Form */}
         <form onSubmit={handleSubmit}>
 
-          {/* EMAIL */}
+          {/* Name */}
+          <div className="form-group">
 
+            <label htmlFor="name">
+              Full Name
+            </label>
+
+            <div className="input-wrapper">
+
+              <i className="bi bi-person"></i>
+
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
+
+          </div>
+
+
+          {/* Email */}
           <div className="form-group">
 
             <label htmlFor="email">
@@ -147,8 +182,7 @@ function AdminLogin() {
           </div>
 
 
-          {/* PASSWORD */}
-
+          {/* Password */}
           <div className="form-group">
 
             <label htmlFor="password">
@@ -163,7 +197,7 @@ function AdminLogin() {
                 type="password"
                 id="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -174,75 +208,43 @@ function AdminLogin() {
           </div>
 
 
-          {/* REMEMBER / FORGOT */}
-
-          <div className="login-options">
-
-            <label>
-
-              <input
-                type="checkbox"
-              />
-
-              <span>
-                Remember me
-              </span>
-
-            </label>
-
-
-            <button
-              type="button"
-              className="forgot-password"
-            >
-              Forgot Password?
-            </button>
-
-          </div>
-
-
-          {/* SIGN IN */}
-
+          {/* Create Account */}
           <button
             type="submit"
             className="login-button"
             disabled={loading}
           >
-
             {loading
-              ? "Signing in..."
-              : "Sign In"
+              ? "Creating Account..."
+              : "Create Admin Account"
             }
 
             {!loading && (
               <i className="bi bi-arrow-right"></i>
             )}
-
           </button>
 
         </form>
 
 
-        {/* ================= CREATE ACCOUNT ================= */}
-
+        {/* Back to Login */}
         <div className="create-account-link">
 
           <span>
-            Don't have an account?
+            Already have an account?
           </span>
 
           <button
             type="button"
-            onClick={() => navigate("/admin/register")}
+            onClick={() => navigate("/admin/login")}
           >
-            Create Account
+            Sign In
           </button>
 
         </div>
 
 
-        {/* ================= FOOTER ================= */}
-
+        {/* Footer */}
         <div className="login-footer">
 
           <span>
@@ -257,4 +259,4 @@ function AdminLogin() {
   );
 }
 
-export default AdminLogin;
+export default AdminRegister;

@@ -23,7 +23,7 @@ export default function ApplyJob() {
     const loadData = async () => {
       try {
         const jobRes = await getJobById(jobId);
-        setJob(jobRes.data.data);
+        setJob(jobRes.data);
 
         // Pre-fill demo applicant details
         try {

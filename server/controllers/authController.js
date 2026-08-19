@@ -2,9 +2,20 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../config/db");
 
+
+/* =====================================================
+   APPLICANT REGISTER
+   Kept for existing Applicant Register functionality
+===================================================== */
+
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const {
+      name,
+      email,
+      password
+    } = req.body;
+
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -12,10 +23,16 @@ const register = async (req, res) => {
       });
     }
 
+
     const [existingUsers] = await db.execute(
-      "SELECT id FROM users WHERE email = ?",
+      `
+      SELECT id
+      FROM users
+      WHERE email = ?
+      `,
       [email]
     );
+
 
     if (existingUsers.length > 0) {
       return res.status(409).json({
@@ -23,34 +40,164 @@ const register = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const userRole = "admin";
-
-    const [result] = await db.execute(
-      `INSERT INTO users (name, email, password, role)
-       VALUES (?, ?, ?, ?)`,
-      [name, email, hashedPassword, userRole]
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
     );
 
-    res.status(201).json({
-      message: "User registered successfully",
-      userId: result.insertId
+
+    // Applicant registration
+    const userRole = "applicant";
+
+
+    const [result] = await db.execute(
+      `
+      INSERT INTO users
+      (
+        name,
+        email,
+        password,
+        role
+      )
+      VALUES (?, ?, ?, ?)
+      `,
+      [
+        name,
+        email,
+        hashedPassword,
+        userRole
+      ]
+    );
+
+
+    return res.status(201).json({
+      success: true,
+      message: "Applicant registered successfully",
+      userId: result.insertId,
+      role: userRole
     });
 
   } catch (error) {
-    console.error("Registration error:", error);
 
-    res.status(500).json({
+    console.error(
+      "Registration error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
       message: "Registration failed"
     });
   }
 };
 
 
+/* =====================================================
+   ADMIN REGISTER
+   Creates account with role = admin
+===================================================== */
+
+const registerAdmin = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password
+    } = req.body;
+
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Name, email and password are required"
+      });
+    }
+
+
+    // Check whether email already exists
+    const [existingUsers] = await db.execute(
+      `
+      SELECT id
+      FROM users
+      WHERE email = ?
+      `,
+      [email]
+    );
+
+
+    if (existingUsers.length > 0) {
+      return res.status(409).json({
+        message: "Email already registered"
+      });
+    }
+
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
+
+
+    // Admin registration
+    const userRole = "admin";
+
+
+    // Insert admin
+    const [result] = await db.execute(
+      `
+      INSERT INTO users
+      (
+        name,
+        email,
+        password,
+        role
+      )
+      VALUES (?, ?, ?, ?)
+      `,
+      [
+        name,
+        email,
+        hashedPassword,
+        userRole
+      ]
+    );
+
+
+    return res.status(201).json({
+      success: true,
+      message: "Admin account created successfully",
+      userId: result.insertId,
+      role: userRole
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Admin registration error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Admin registration failed"
+    });
+  }
+};
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+
+    const {
+      email,
+      password
+    } = req.body;
+
 
     if (!email || !password) {
       return res.status(400).json({
@@ -58,12 +205,22 @@ const login = async (req, res) => {
       });
     }
 
+
+    // Find user
     const [users] = await db.execute(
-      `SELECT id, name, email, password, role
-       FROM users
-       WHERE email = ?`,
+      `
+      SELECT
+        id,
+        name,
+        email,
+        password,
+        role
+      FROM users
+      WHERE email = ?
+      `,
       [email]
     );
+
 
     if (users.length === 0) {
       return res.status(401).json({
@@ -71,12 +228,16 @@ const login = async (req, res) => {
       });
     }
 
+
     const user = users[0];
 
+
+    // Check password
     const passwordMatch = await bcrypt.compare(
       password,
       user.password
     );
+
 
     if (!passwordMatch) {
       return res.status(401).json({
@@ -84,6 +245,8 @@ const login = async (req, res) => {
       });
     }
 
+
+    // Create JWT
     const token = jwt.sign(
       {
         id: user.id,
@@ -97,9 +260,13 @@ const login = async (req, res) => {
       }
     );
 
-    res.json({
+
+    return res.json({
+      success: true,
       message: "Login successful",
+
       token,
+
       user: {
         id: user.id,
         name: user.name,
@@ -109,16 +276,26 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Login error:", error);
 
-    res.status(500).json({
+    console.error(
+      "Login error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
       message: "Login failed"
     });
   }
 };
 
 
+/* =====================================================
+   EXPORTS
+===================================================== */
+
 module.exports = {
   register,
+  registerAdmin,
   login
 };
